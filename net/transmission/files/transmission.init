@@ -76,8 +76,25 @@ transmission() {
 		mkdir -p "$config_dir"
 		chmod 0755 "$config_dir"
 		touch "$config_file"
+		mkdir -p "$config_dir/resume"
+		mkdir -p "$config_dir/torrents"
+		mkdir -p "$config_dir/blocklists"
+		[ -e "$config_dir/stats.json" ] || touch "$config_dir/stats.json"
 		[ -z "$user" ] || chown -R "$user:$group" "$config_dir"
 	}
+	
+	[ -d "$download_dir" ] || {
+		mkdir -p "$download_dir"
+		chmod 0755 "$download_dir"
+		[ -z "$user" ] || chown -R "$user:$group" "$download_dir"
+	}
+
+	[ "$incomplete_dir_enabled" = "0" ] || [ -d "$incomplete_dir" ] || {
+		mkdir -p "$incomplete_dir"
+		chmod 0755 "$incomplete_dir"
+		[ -z "$user" ] || chown -R "$user:$group" "$incomplete_dir"
+	}
+
 
 	[ "$config_overwrite" = 0 ] || {
 
@@ -134,7 +151,13 @@ transmission() {
 
 	procd_add_jail transmission log
 	procd_add_jail_mount "$config_file"
+	procd_add_jail_mount_rw "$config_dir/resume"
+	procd_add_jail_mount_rw "$config_dir/torrents"
+	procd_add_jail_mount_rw "$config_dir/blocklists"
+	procd_add_jail_mount_rw "$config_dir/stats.json"
 	procd_add_jail_mount_rw "$download_dir"
+	[ "$incomplete_dir_enabled" = "1" ] && procd_add_jail_mount_rw "$incomplete_dir"
+	[ "$watch_dir_enabled" = "1" ] && procd_add_jail_mount_rw "$watch_dir"
 	web_home="${web_home:-/usr/share/transmission/web}"
 	[ -d "$web_home" ] && procd_add_jail_mount "$web_home"
 	procd_close_instance
