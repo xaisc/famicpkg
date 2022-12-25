@@ -20,7 +20,7 @@ define Package/transmission-web-control-only
   CATEGORY:=Network
   SUBMENU:=BitTorrent
   DEPENDS:=
-  CONFLICTS:=transmission-web,transmission-web-control
+  CONFLICTS:=transmission-web transmission-web-control
   TITLE:=Transmission Web Control Only (for Transmission Docker)
   URL:=https://github.com/ronggang/transmission-web-control
   PKGARCH:=all
